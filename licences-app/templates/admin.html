@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Gérer les licences – {{ app_name }}{% endblock %}
+{% block page_class %}page--large{% endblock %}
+
+{% block styles %}
+    .bloc { background: var(--surface); border-radius: 6px; padding: 1.5rem; margin-bottom: 2rem; }
+    .bloc h2 { margin-bottom: 1.25rem; }
+    .formulaire { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.1rem 1.5rem; }
+    .champ { display: flex; flex-direction: column; }
+    .champ input { margin-top: auto; }
+    .champ--large { grid-column: 1 / -1; }
+    .actions { display: flex; gap: .75rem; flex-wrap: wrap; }
+    @media (max-width: 40rem) { .formulaire { grid-template-columns: 1fr; } }
+
+    .recherche { display: flex; gap: .6rem; flex-wrap: wrap; align-items: center; margin-bottom: 1.25rem; }
+    .recherche input { flex: 1 1 16rem; width: auto; }
+    .tete-liste { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: .5rem; margin-bottom: 1rem; }
+    .tete-liste h2 { margin: 0; }
+    .compte { color: var(--muted); font-size: .9375rem; }
+
+    .tableau { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .9375rem; }
+    th, td { text-align: left; padding: .7rem .75rem; border-bottom: 1px solid var(--line); vertical-align: middle; }
+    th { color: var(--muted); font-weight: 600; white-space: nowrap; }
+    td.date { font-variant-numeric: tabular-nums; white-space: nowrap; }
+    td.client { font-weight: 600; }
+    td.actions-ligne { white-space: nowrap; text-align: right; }
+    td.actions-ligne form { display: inline; }
+    tr:last-child td { border-bottom: 0; }
+    .vide { color: var(--muted); margin: 0; }
+{% endblock %}
+
+{% block content %}
+  <h1>Gérer les licences</h1>
+  <p class="intro">Chaque licence est rattachée à l'identifiant de connexion d'un client, qui la voit dès l'enregistrement.</p>
+
+  {% if message %}<p class="alerte alerte--ok" role="status">{{ message }}</p>{% endif %}
+
+  <section class="bloc" aria-labelledby="titre-ajout">
+    <h2 id="titre-ajout">Ajouter une licence</h2>
+    {% set action = url_for('ajouter') %}
+    {% set bouton = "Ajouter la licence" %}
+    {% set annuler = None %}
+    {% include "_formulaire.html" %}
+  </section>
+
+  <section class="bloc" aria-labelledby="titre-liste">
+    <div class="tete-liste">
+      <h2 id="titre-liste">Toutes les licences</h2>
+      <span class="compte">{{ licences|length }} licence{{ 's' if licences|length > 1 }}{% if q %} trouvée{{ 's' if licences|length > 1 }}{% endif %}</span>
+    </div>
+
+    <form class="recherche" method="get" action="{{ url_for('admin') }}" role="search">
+      <label for="q" class="sr">Rechercher</label>
+      <input id="q" name="q" value="{{ q }}" placeholder="Rechercher un client ou un produit">
+      <button class="btn btn--discret" type="submit">Rechercher</button>
+      {% if q %}<a href="{{ url_for('admin') }}">Tout afficher</a>{% endif %}
+    </form>
+
+    {% if licences %}
+    <div class="tableau">
+      <table>
+        <thead>
+          <tr><th>Client</th><th>Produit</th><th>Début</th><th>Fin</th><th>Statut</th><th><span class="sr">Actions</span></th></tr>
+        </thead>
+        <tbody>
+          {% for l in licences %}
+          <tr>
+            <td class="client">{{ l.username }}</td>
+            <td>{{ l.produit }}</td>
+            <td class="date">{{ l.debut_fr }}</td>
+            <td class="date">{{ l.fin_fr }}</td>
+            <td><span class="etat s-{{ l.statut }}">{{ l.etat }}</span></td>
+            <td class="actions-ligne">
+              <a href="{{ url_for('modifier', lic_id=l.id) }}">Modifier</a>
+              <form method="post" action="{{ url_for('supprimer', lic_id=l.id) }}"
+                    onsubmit='return confirm({{ ("Supprimer la licence « " ~ l.produit ~ " » de " ~ l.username ~ " ?")|tojson }});'>
+                <button class="btn btn--danger" type="submit">Supprimer</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% elif q %}
+    <p class="vide">Aucune licence ne correspond à « {{ q }} ».</p>
+    {% else %}
+    <p class="vide">Aucune licence pour l'instant. Ajoutez la première avec le formulaire ci-dessus.</p>
+    {% endif %}
+  </section>
+{% endblock %}

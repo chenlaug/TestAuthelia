@@ -1,0 +1,60 @@
+server:
+  address: tcp://0.0.0.0:9091
+
+authentication_backend:
+  ldap:
+    implementation: "lldap"
+    address: "ldap://lldap:3890"
+    base_dn: "dc=localtest,dc=me"
+    user: "uid=authelia,ou=people,dc=localtest,dc=me"
+    password: "MotDePasseDuCompteAuthelia"
+
+access_control:
+  default_policy: deny
+  rules:
+    - domain: app.localtest.me
+      resources:
+        - "^/admin.*$"
+      subject: "group:admins"
+      policy: one_factor
+
+    - domain: app.localtest.me
+      resources:
+        - "^/admin.*$"
+      policy: deny
+
+    - domain: app.localtest.me
+      policy: one_factor
+
+session:
+  secret: SYlCn15NzF7Ey0WTmCUBRQs3bGK3yOH08wTk3pgThAcYaOFd4kR1hl5PQp0LvtE6
+  cookies:
+    - domain: localtest.me
+      authelia_url: https://auth.localtest.me
+      default_redirection_url: https://app.localtest.me
+
+identity_validation:
+  reset_password:
+    jwt_secret: 2JDU4MDifhq1pt71bjvKReuM9RsWNRknEKapvgYKC25eRzrJsYGapQs7Gqf5VB8C
+
+storage:
+  encryption_key: zBEun1eUEB2a1QLVqRrnQa7UruHS0qhkGGbltEqWvl783ZhrngQfM3dLMR67FQLq
+  local:
+    path: /config/db.sqlite3
+
+notifier:
+  filesystem:
+    filename: /config/notification.txt
+
+password_policy:
+  standard:
+    enabled: false
+    min_length: 8
+    max_length: 0
+    require_uppercase: false
+    require_lowercase: false
+    require_number: false
+    require_special: false
+  zxcvbn:
+    enabled: true
+    min_score: 3

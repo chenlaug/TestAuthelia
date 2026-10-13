@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ app_name }}{% endblock %}</title>
+  <style>
+    :root {
+      --paper: #EDF1EE;
+      --surface: #FFFFFF;
+      --ink: #16202C;
+      --muted: #566170;
+      --line: #D2D9D4;
+      --ok: #2A6A4B;
+      --soon: #9A5700;
+      --off: #A2342A;
+      --wait: #3D5B8A;
+      --focus: #2F5FD0;
+      --font: Seravek, "Gill Sans Nova", Ubuntu, Calibri, "DejaVu Sans", source-sans-pro, sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --paper: #121820;
+        --surface: #1A222C;
+        --ink: #E6EBEE;
+        --muted: #9AA5B1;
+        --line: #2B3541;
+        --ok: #5FBE8E;
+        --soon: #E2A547;
+        --off: #E6776C;
+        --wait: #8DAAD9;
+        --focus: #93B2FF;
+      }
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--font);
+      font-size: 1.0625rem;
+      line-height: 1.5;
+    }
+    a { color: inherit; text-underline-offset: 3px; }
+    :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 2px; }
+
+    .page { max-width: 46rem; margin: 0 auto; padding: 0 1.25rem 4rem; }
+    .page--large { max-width: 64rem; }
+
+    /* En-tête */
+    .barre {
+      display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between;
+      gap: .5rem 1.5rem; padding: 1.5rem 0 2.5rem;
+    }
+    .marque { font-weight: 700; font-size: 1.125rem; text-decoration: none; }
+    .nav { display: flex; flex-wrap: wrap; gap: .25rem 1.25rem; color: var(--muted); font-size: .9375rem; }
+    .nav strong { color: var(--ink); font-weight: 600; }
+
+    h1 { font-size: clamp(1.75rem, 4vw, 2.25rem); line-height: 1.15; font-weight: 700; margin: 0 0 .5rem; letter-spacing: -.01em; }
+    h2 { font-size: 1.25rem; line-height: 1.3; margin: 0; font-weight: 600; }
+    .intro { color: var(--muted); margin: 0 0 2rem; }
+
+    /* Boutons et formulaires */
+    .btn {
+      display: inline-block; font: inherit; font-weight: 600; font-size: .9375rem;
+      padding: .6rem 1.1rem; border-radius: 4px; border: 1px solid var(--ink);
+      background: var(--ink); color: var(--paper); cursor: pointer; text-decoration: none;
+    }
+    .btn--discret { background: transparent; color: var(--ink); border-color: var(--line); }
+    .btn--danger { background: transparent; color: var(--off); border-color: transparent; padding-inline: .4rem; }
+    .btn--danger:hover { text-decoration: underline; }
+    label { display: block; font-weight: 600; font-size: .9375rem; margin-bottom: .3rem; }
+    .aide { display: block; font-weight: 400; color: var(--muted); font-size: .875rem; }
+    input, textarea {
+      width: 100%; font: inherit; color: var(--ink); background: var(--surface);
+      border: 1px solid var(--line); border-radius: 4px; padding: .55rem .7rem;
+    }
+    textarea { min-height: 4.5rem; resize: vertical; }
+
+    .alerte { padding: .75rem 1rem; border-radius: 4px; margin: 0 0 1.5rem; font-weight: 600; }
+    .alerte--ok { background: color-mix(in srgb, var(--ok) 14%, transparent); color: var(--ok); }
+    .alerte--erreur { background: color-mix(in srgb, var(--off) 14%, transparent); color: var(--off); }
+
+    .etat { font-weight: 600; font-size: .9375rem; white-space: nowrap; }
+    .etat::before {
+      content: ""; display: inline-block; width: .55rem; height: .55rem; border-radius: 50%;
+      background: currentColor; margin-right: .45rem; vertical-align: .08em;
+    }
+    .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    .s-active { color: var(--ok); }
+    .s-bientot { color: var(--soon); }
+    .s-expiree { color: var(--off); }
+    .s-attente { color: var(--wait); }
+
+    {% block styles %}{% endblock %}
+  </style>
+</head>
+<body>
+  <div class="page {% block page_class %}{% endblock %}">
+    <header class="barre">
+      <a class="marque" href="{{ url_for('accueil') }}">{{ app_name }}</a>
+      {% if user %}
+      <nav class="nav" aria-label="Compte">
+        <span>Connecté : <strong>{{ user.name }}</strong></span>
+        {% if user.is_admin %}<a href="{{ url_for('admin') }}">Gérer les licences</a>{% endif %}
+        {% if logout_url %}<a href="{{ logout_url }}">Se déconnecter</a>{% endif %}
+      </nav>
+      {% endif %}
+    </header>
+    <main>
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</body>
+</html>

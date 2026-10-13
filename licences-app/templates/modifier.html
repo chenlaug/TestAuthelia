@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Modifier une licence – {{ app_name }}{% endblock %}
+
+{% block styles %}
+    .bloc { background: var(--surface); border-radius: 6px; padding: 1.5rem; }
+    .formulaire { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.1rem 1.5rem; }
+    .champ { display: flex; flex-direction: column; }
+    .champ input { margin-top: auto; }
+    .champ--large { grid-column: 1 / -1; }
+    .actions { display: flex; gap: .75rem; flex-wrap: wrap; }
+    @media (max-width: 40rem) { .formulaire { grid-template-columns: 1fr; } }
+{% endblock %}
+
+{% block content %}
+  <h1>Modifier une licence</h1>
+  <p class="intro">Les changements sont visibles par le client dès l'enregistrement.</p>
+  <section class="bloc">
+    {% set action = url_for('modifier', lic_id=lic_id) %}
+    {% set bouton = "Enregistrer les modifications" %}
+    {% set annuler = url_for('admin') %}
+    {% include "_formulaire.html" %}
+  </section>
+{% endblock %}

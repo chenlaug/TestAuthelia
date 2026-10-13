@@ -1,0 +1,46 @@
+services:
+  authelia:
+    image: authelia/authelia:4.39
+    volumes:
+      - ./authelia:/config
+    restart: unless-stopped
+
+  appli:
+    image: traefik/whoami
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2
+    container_name: caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - ./caddy_data:/data
+
+  lldap:
+    image: lldap/lldap:stable
+    container_name: lldap
+    ports:
+      - "17170:17170"
+    environment:
+      - LLDAP_JWT_SECRET=chaine_aleatoire_longue_1
+      - LLDAP_KEY_SEED=chaine_aleatoire_longue_2
+      - LLDAP_LDAP_BASE_DN=dc=localtest,dc=me
+      - LLDAP_LDAP_USER_PASS=MotDePasseAdminLLDAP
+    volumes:
+      - ./lldap_data:/data
+
+  licences:
+    build: ./licences-app
+    container_name: licences
+    restart: unless-stopped
+    environment:
+      - APP_NAME=Espace client
+      - ADMIN_GROUP=admins
+      - LOGOUT_URL=https://auth.localtest.me/logout
+      - SOON_DAYS=30
+    volumes:
+      - ./licences_data:/data

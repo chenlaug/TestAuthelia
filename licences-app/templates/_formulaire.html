@@ -1,0 +1,31 @@
+{% if erreur %}<p class="alerte alerte--erreur" role="alert">{{ erreur }}</p>{% endif %}
+<form method="post" action="{{ action }}" class="formulaire">
+  <div class="champ">
+    <label for="username">Identifiant du client
+      <span class="aide">Son identifiant de connexion (User ID dans LLDAP).</span>
+    </label>
+    <input id="username" name="username" required autocomplete="off" value="{{ form.username or '' }}">
+  </div>
+  <div class="champ">
+    <label for="produit">Produit ou type de licence</label>
+    <input id="produit" name="produit" required value="{{ form.produit or '' }}">
+  </div>
+  <div class="champ">
+    <label for="debut">Début de validité</label>
+    <input id="debut" name="debut" type="date" required value="{{ form.debut or '' }}">
+  </div>
+  <div class="champ">
+    <label for="fin">Fin de validité</label>
+    <input id="fin" name="fin" type="date" required value="{{ form.fin or '' }}">
+  </div>
+  <div class="champ champ--large">
+    <label for="note">Note pour le client
+      <span class="aide">Facultatif, visible par le client.</span>
+    </label>
+    <textarea id="note" name="note">{{ form.note or '' }}</textarea>
+  </div>
+  <div class="champ--large actions">
+    <button class="btn" type="submit">{{ bouton }}</button>
+    {% if annuler %}<a class="btn btn--discret" href="{{ annuler }}">Annuler</a>{% endif %}
+  </div>
+</form>

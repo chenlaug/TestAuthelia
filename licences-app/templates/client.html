@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Vos licences – {{ app_name }}{% endblock %}
+
+{% block styles %}
+    .licences { display: grid; gap: 1.5rem; }
+    .licence {
+      background: var(--surface);
+      border-top: 4px solid currentColor;
+      border-radius: 2px 2px 6px 6px;
+      padding: 1.25rem 1.5rem 1.5rem;
+    }
+    .licence > * { color: var(--ink); }
+    .licence__tete { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: .25rem 1rem; }
+    .licence__tete .etat { color: inherit; }
+    .licence.s-active .licence__tete .etat { color: var(--ok); }
+    .licence.s-bientot .licence__tete .etat { color: var(--soon); }
+    .licence.s-expiree .licence__tete .etat { color: var(--off); }
+    .licence.s-attente .licence__tete .etat { color: var(--wait); }
+
+    .echeance { margin: 1.25rem 0 .25rem; }
+    .echeance span { display: block; color: var(--muted); font-size: .9375rem; }
+    .echeance strong {
+      display: block; font-size: clamp(2rem, 7vw, 2.75rem); line-height: 1.1;
+      font-weight: 700; letter-spacing: -.015em; font-variant-numeric: tabular-nums;
+    }
+    .phrase { margin: 0 0 1.25rem; color: var(--muted); }
+
+    .duree__rail { position: relative; height: 8px; border-radius: 4px; background: var(--line); }
+    .duree__fait {
+      position: absolute; inset: 0 auto 0 0; border-radius: 4px; background: currentColor;
+      transform-origin: left center; animation: remplir .9s cubic-bezier(.2,.7,.2,1) both;
+    }
+    .licence .duree__fait { color: inherit; }
+    .duree__auj {
+      position: absolute; top: -5px; width: 2px; height: 18px; margin-left: -1px;
+      background: var(--ink); animation: apparaitre .3s .8s both;
+    }
+    .duree__bornes {
+      display: flex; justify-content: space-between; gap: 1rem; margin-top: .6rem;
+      font-size: .875rem; color: var(--muted); font-variant-numeric: tabular-nums;
+    }
+    .duree__bornes span:last-child { text-align: right; }
+    .note { margin: 1.25rem 0 0; padding-top: 1rem; border-top: 1px solid var(--line); color: var(--muted); font-size: .9375rem; white-space: pre-line; }
+
+    .vide { background: var(--surface); border-radius: 6px; padding: 1.5rem; }
+    .vide p { margin: 0; }
+    .vide p + p { margin-top: .5rem; color: var(--muted); }
+
+    @keyframes remplir { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+    @keyframes apparaitre { from { opacity: 0; } to { opacity: 1; } }
+    @media (prefers-reduced-motion: reduce) {
+      .duree__fait, .duree__auj { animation: none; }
+    }
+{% endblock %}
+
+{% block content %}
+  <h1>Vos licences</h1>
+  <p class="intro">
+    {% if licences %}Retrouvez ici la validité de chaque licence associée à votre compte.
+    {% else %}Les licences associées à votre compte apparaîtront ici.{% endif %}
+  </p>
+
+  {% if licences %}
+  <div class="licences">
+    {% for l in licences %}
+    <article class="licence s-{{ l.statut }}">
+      <div class="licence__tete">
+        <h2>{{ l.produit }}</h2>
+        <p class="etat" style="margin:0">{{ l.etat }}</p>
+      </div>
+
+      <p class="echeance"><span>{{ l.libelle }}</span><strong>{{ l.echeance }}</strong></p>
+      <p class="phrase">{{ l.phrase }}</p>
+
+      <div class="duree" role="img" aria-label="Période de validité : du {{ l.debut_fr }} au {{ l.fin_fr }}, {{ l.avancement|round|int }} % écoulés">
+        <div class="duree__rail s-{{ l.statut }}">
+          <div class="duree__fait" style="width: {{ l.avancement }}%"></div>
+          {% if l.statut in ('active', 'bientot') %}<span class="duree__auj" style="left: {{ l.avancement }}%"></span>{% endif %}
+        </div>
+        <div class="duree__bornes">
+          <span>Début<br>{{ l.debut_fr }}</span>
+          <span>Fin<br>{{ l.fin_fr }}</span>
+        </div>
+      </div>
+
+      {% if l.note %}<p class="note">{{ l.note }}</p>{% endif %}
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="vide">
+    <p>Aucune licence n'est encore associée à votre compte.</p>
+    <p>Si vous venez d'en acheter une, elle sera visible ici dès son activation.</p>
+  </div>
+  {% endif %}
+{% endblock %}
