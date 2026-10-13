@@ -1,0 +1,9 @@
+# Secrets
+.env
+
+# Données runtime des conteneurs
+caddy_data/
+lldap_data/
+licences_data/
+authelia/db.sqlite3
+authelia/notification.txt
